@@ -6,25 +6,22 @@ import { addToken } from "./storage";
 
 //Sing - In
 export const singIn = (user, password) => {
-    const url    = "auth/login"
+    const url    = "login"
     const method = "POST"
     const header = {
-        header : {
             Accept        : "application/json",
-			"Content-Type": "application/json",
-        }
+	   "Content-Type" : "application/json",
     }
     const body = JSON.stringify({
                     username: user,
                     password: password
                 })
 
-    let login = cnn(url,method,header,body)
-    // console.log(login)
+    const login = cnn(url,method,header,body)
+    
     return login.then( (login) => {
-
         if (!login.code) {
-            let userData = validateProfile(login.token)
+            const userData = validateProfile(login.token)
             return userData
         }else if(login.code >= 400 && response.code <= 499){
             console.log('Error al iniciar sesion')
@@ -36,18 +33,16 @@ export const singIn = (user, password) => {
 // validate profile
 const validateProfile = (token) =>{
 
-    const url    = "me"
+    const url    = "_URL_"
     const method = "GET"
     const header = {
-        header : {
-			Accept: "application/json",
-			"Content-Type": "application/json",
-			Authorization : token
-        }
+		Accept: "application/json",
+		"Content-Type": "application/json",
+		Authorization : token
     }
     let userData = {}
 
-    let validate = cnn(url,method,header)
+    const validate = cnn(url,method,header)
 	return validate.then(response => {
         userData = {
             id       : response.id,
@@ -55,10 +50,10 @@ const validateProfile = (token) =>{
             email    : response.email,
             token    : token,
         }
-		if (response.profile_id) {
-		  	userData.rute = 'PerfileUser'
+	if (response.profile_id) {
+		userData.rute = '_URL_'
 	    }else {
-			userData.rute = 'RegistroFinal'
+		userData.rute = '_URL_'
         }
 
         addToken(JSON.stringify(userData))
