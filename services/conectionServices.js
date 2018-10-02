@@ -7,37 +7,35 @@ Importante : La funcion retorna una PROMESA <--
 --------------------------------
 Ejemplo de uso:
 --------------------------------
-let header = {
-    header : {
+const header = {
         Accept: "application/json",
         "Content-Type": "application/json"
         Authorization : token
-    }
 }
 
-let body = JSON.stringify({
+const body = JSON.stringify({
         username: "root",
         password: "root"
 })
-cnn("http://192.168.1.180:8000/auth/login","post",header,body)
+cnn("http://you_page_url/login","post",header,body)
 ----------------------------------
 */
 export const cnn = (url, method, headers, body = false) =>{
     
-    const link = "http://192.168.1.180:8000/"
+    const link = "http://you_page_url/"
 
     if (body) {
         return fetch(`${link}${url}`, {
                     method : method,
-                    headers: headers.header,
+                    headers: headers,
                     body   : body
                 })
                 .then(response => response.json())
                 .then(response => {
                     if (!response) {
                         console.log("Error en la coneccion!!")
+                        return;
                     }
-                    // console.log(response)
                     return response
                 })
                 .catch(err => {
@@ -52,6 +50,7 @@ export const cnn = (url, method, headers, body = false) =>{
                 .then(response => {
                     if (!response) {
                         console.log("Error en la coneccion!!")
+                        return;
                     }
                     
                     return response
