@@ -20,43 +20,21 @@ const body = JSON.stringify({
 cnn("http://you_page_url/login","post",header,body)
 ----------------------------------
 */
-export const cnn = (url, method, headers, body = false) =>{
+export const cnn = async (url, method, headers, body) =>{
     
-    const link = "http://you_page_url/"
+    const link = "http://you_page_url/";
 
-    if (body) {
-        return fetch(`${link}${url}`, {
-                    method : method,
-                    headers: headers,
-                    body   : body
-                })
-                .then(response => response.json())
-                .then(response => {
-                    if (!response) {
-                        console.log("Error en la coneccion!!")
-                        return;
-                    }
-                    return response
-                })
-                .catch(err => {
-                    console.warn(err);
-                });
-    }else{
-        return fetch(`${link}${url}`, {
-                    method : method,
-                    headers: headers.header
-                })
-                .then(response => response.json())
-                .then(response => {
-                    if (!response) {
-                        console.log("Error en la coneccion!!")
-                        return;
-                    }
-                    
-                    return response
-                })
-                .catch(err => {
-                    console.warn(err);
-                });
+    try {
+        const resp = await fetch(`${link}${url}`, {
+            method,
+            headers,
+            body
+        });
+        
+        const json = await resp.json();
+        return json;
+
+    } catch (error) {
+        console.error("error", error);
     }
 }
