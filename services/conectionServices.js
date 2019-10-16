@@ -1,40 +1,46 @@
-/* -------------------------------
-1)url     = es el link de la peticion                               -- (type : string)
-2)method  = es el metodo de la peticion ej(POST,PUT,GET,PATCH)      -- (type : string)
-3)headers = son los headers de la petecion se manda en              -- (type : objeto)
-4)body    = los datos de la peticion, no es obligatorio (el cuerpo) -- (type : objeto) 
-Importante : La funcion retorna una PROMESA <--
---------------------------------
-Ejemplo de uso:
---------------------------------
-const header = {
-        Accept: "application/json",
-        "Content-Type": "application/json"
-        Authorization : token
-}
+import axios from "axios";
 
-const body = JSON.stringify({
-        username: "root",
-        password: "root"
-})
-cnn("http://you_page_url/login","post",header,body)
-----------------------------------
-*/
-export const cnn = async (url, method, headers, body) =>{
-    
-    const link = "http://you_page_url/";
+import config from "../../config/config.json";
 
-    try {
-        const resp = await fetch(`${link}${url}`, {
-            method,
-            headers,
-            body
-        });
-        
-        const json = await resp.json();
-        return json;
+/**
+ * Esta funcion realiza la coneccion al api me puntos !!
+ * @param {El path de la url al que se apunta} path [string]
+ * @param {El metodo que se usara para el llamado} method [string]
+ * @param {Los headers que se mandaran al api} headers [object]
+ * @param {Payload que se manda al api} body [object]
+ * @param {Si falla la peticion se llama nuevamente a la funcion} calls [number]
+ */
+export const cnn = async (path, method, headers = {}, data = {}, calls = 0) => {
+	headers = setHeaders(headers);
 
-    } catch (error) {
-        console.error("error", error);
-    }
-}
+	const options = setOptions(
+		`${config.apipuntos}${path}`,
+		method,
+		headers,
+		data
+	);
+
+	try {
+		return await axios(options);
+	} catch (error) {
+		if (calls => 3) {
+			return [];
+		}
+		cnn(path, method, headers, data, calls + 1);
+	}
+};
+
+// agrega los nuevo headers a la peticion !!
+const setHeaders = headers => {
+	return !!Object.keys(headers).length
+		? { ...config.headers, ...headers }
+		: config.headers;
+};
+
+const setOptions = (url, method, headers, data) => {
+	if (!!Object.keys(data).length) {
+		data = JSON.stringify(data);
+		return { url, method, headers, data };
+	}
+	return { url, method, headers };
+};
