@@ -10,7 +10,7 @@ import config from "../../config/config.json";
  * @param {Payload que se manda al api} body [object]
  * @param {Si falla la peticion se llama nuevamente a la funcion} calls [number]
  */
-export const cnn = async (path, method, headers = {}, data = {}, calls = 0) => {
+export const cnn = async (path, method, headers = null, data = null, calls = 0) => {
 	headers = setHeaders(headers);
 
 	const options = setOptions(
@@ -32,13 +32,11 @@ export const cnn = async (path, method, headers = {}, data = {}, calls = 0) => {
 
 // agrega los nuevo headers a la peticion !!
 const setHeaders = headers => {
-	return !!Object.keys(headers).length
-		? { ...config.headers, ...headers }
-		: config.headers;
+	return !!headers ? { ...config.headers, ...headers } : config.headers;
 };
 
 const setOptions = (url, method, headers, data) => {
-	if (!!Object.keys(data).length) {
+	if (!!data) {
 		data = JSON.stringify(data);
 		return { url, method, headers, data };
 	}
