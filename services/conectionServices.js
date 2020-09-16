@@ -1,41 +1,56 @@
 import axios from "axios";
+import { getToken } from "./sessionStorage";
 
-import config from "../../config/config.json";
+// this url can be in a separate file
+const base_url = "www.example.com"; // you url base
 
-/**
- * Esta funcion realiza la coneccion al api me puntos !!
- * @param {El path de la url al que se apunta} path [string]
- * @param {El metodo que se usara para el llamado} method [string]
- * @param {Los headers que se mandaran al api} headers [object]
- * @param {Payload que se manda al api} body [object]
- * @param {Si falla la peticion se llama nuevamente a la funcion} calls [number]
- */
-export const cnn = async (path, method, headers = null, data = null) => {
-	headers = setHeaders(headers);
+const instanceAxios = axios.create({
+	baseURL: base_url
+});
 
-	const options = setOptions(
-		`${config.apipuntos}${path}`,
-		method,
-		headers,
-		data
-	);
-
-	try {
-		return await axios(options);
-	} catch (error) {
-		return error;
+// here more data is transformed or added before sending the request !!
+instanceAxios.interceptors.request.use(request => {
+	// Example: add token in header before send request
+	if (getToken()) {
+		request.headers.Authorization = getToken();
 	}
-};
+	return request;
+});
 
-// agrega los nuevo headers a la peticion !!
-const setHeaders = headers => {
-	return !!headers ? { ...config.headers, ...headers } : config.headers;
-};
-
-const setOptions = (url, method, headers, data) => {
-	if (!!data) {
-		data = JSON.stringify(data);
-		return { url, method, headers, data };
+// after send request, is request error, catch requets and conver and continue !!
+instanceAxios.interceptors.response.use(response => {
+	return response;
+},
+	(error) => {
+		if (!error.response) {
+			return { data: { data: null }, status: 500 }
+		}
+		return error.response;
 	}
-	return { url, method, headers };
-};
+);
+
+// define type request !!
+export default {
+
+	get: async (path, params) => {
+		return await instanceAxios.get(`${base_url}/${path}`, { params });
+	},
+
+	post: async (path, data, headers = haderDefault) => {
+		return await instanceAxios.post(`${base_url}/${path}`, data, { headers });
+	},
+
+	put: async (path, data, headers = haderDefault) => {
+		return await instanceAxios.put(`${base_url}/${path}`, data, { headers });
+	},
+
+	patch: async (path, data, headers = haderDefault) => {
+		return await instanceAxios.patch(`${base_url}/${path}`, data, { headers });
+	},
+
+	delete: (path) => {
+		return instanceAxios.delete(path)
+	}
+
+}
+
